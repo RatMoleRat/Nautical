@@ -1,0 +1,9 @@
+{
+    "id" : "Nautical",
+    "version" : "0.1.0-SNAPSHOT",
+    "author" : "RatMoleRat",
+    "displayName" : "Nautical",
+    "description" : "Boats and other nautical things",
+    "dependencies" : [{"id": "Core", "minVersion": "2.0.0"}],
+    "serverSideOnly" : false
+}
