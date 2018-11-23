@@ -1,4 +1,13 @@
 {
+    "name": "Boat",
+    "Location": {},
+    "Mesh": {
+        "mesh": "Nautical:Boat",
+        "texture": "Core:Plank"
+    },
+    "AABBCollision": {
+        "extents": [1, 0.5, 0.25]
+    },
     "InteractionTarget": {},
-    "BoatComponent": {}
+    "Boat": {}
 }

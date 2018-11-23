@@ -19,7 +19,6 @@ package org.terasology.nautical;
 import org.terasology.entitySystem.Component;
 
 /**
- * Attached to player when they get on the boat
  */
 public class BoatComponent implements Component {
     //TODO: make boat follow player
