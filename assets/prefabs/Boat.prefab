@@ -3,10 +3,17 @@
     "Location": {},
     "Mesh": {
         "mesh": "Nautical:Boat",
-        "texture": "Core:Plank"
+        "material": "Nautical:Boat"
+    },
+    "HullShape": {
+         "sourceMesh" : "Nautical:Boat"
+    },
+    "RigidBody": {
+        "collisionGroup" : "engine:world",
+        "collidesWith" : ["engine:world","engine:debris","engine:sensor","engine:character", "engine:liquid"]
     },
     "AABBCollision": {
-        "extents": [1, 0.5, 0.25]
+        "extents": [.5, 0.125, 0.25]
     },
     "InteractionTarget": {},
     "Boat": {}

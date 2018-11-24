@@ -1,11 +1,6 @@
 {
     "displayName" : "Boat",
     "basedOn" : "Core:plank",
-    "shape" : "Nautical:boat",
-    "tile" : "Core:Plank",
-    "entity" : {
-        "prefab" : "Nautical:Boat",
-        "temporary" : false,
-        "keepActive" : true
-    }
+    "shape" : "Nautical:Boat",
+    "tile" : "Nautical:Boat"
 }
