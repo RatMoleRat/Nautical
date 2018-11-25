@@ -25,17 +25,13 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.logic.characters.KinematicCharacterMover;
 import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.inventory.ItemComponent;
-import org.terasology.math.AABB;
 import org.terasology.math.ChunkMath;
 import org.terasology.math.Side;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.network.NetworkSystem;
-import org.terasology.physics.Physics;
-import org.terasology.physics.StandardCollisionGroup;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.registry.In;
 import org.terasology.world.BlockEntityRegistry;
@@ -64,7 +60,6 @@ public class BoatPlacingSystem extends BaseComponentSystem {
     @In
     private EntityManager entityManager;
 
-    @Override
     public void initialise() {
         //TODO: get a better solution than this, as now things underwater can't be mined
         CoreRegistry.get(BlockManager.class).getBlock("Core:Water").setTargetable(true);
@@ -90,15 +85,15 @@ public class BoatPlacingSystem extends BaseComponentSystem {
 
         Block block = type.getBlockForPlacement(placementPos, surfaceSide, secondaryDirection);
 
-        logger.info("is boat");
-        if (canPlaceBlock(block, targetBlock, placementPos)) {
-            logger.info("can place");
-            if (networkSystem.getMode().isAuthority()) {
-                logger.info("placing boat");
-                EntityRef boat = entityManager.create("Boat", new Vector3f(placementPos.x, placementPos.y, placementPos.z));
+        logger.info("block id: "+block.getDisplayName());
+        if (block.getDisplayName().equals("Boat")) {
+            if (canPlaceBlock(block, targetBlock, placementPos)) {
+                logger.info("can place");
+                if (networkSystem.getMode().isAuthority()) {
+                    logger.info("placing boat");
+                    EntityRef boat = entityManager.create("Boat", new Vector3f(placementPos.x, placementPos.y, placementPos.z));
+                }
             }
-        } else {
-            event.consume();
         }
     }
 
@@ -113,7 +108,7 @@ public class BoatPlacingSystem extends BaseComponentSystem {
             return false;
         }
         logger.info("is water");
-        Block adjBlock = worldProvider.getBlock(blockPos.x, blockPos.y, blockPos.z);
+        Block adjBlock = worldProvider.getBlock(blockPos.x, blockPos.y+1, blockPos.z);
         logger.info(adjBlock.getDisplayName());
         if (!adjBlock.equals(CoreRegistry.get(BlockManager.class).getBlock("engine:air"))) {
             return false;
@@ -123,6 +118,7 @@ public class BoatPlacingSystem extends BaseComponentSystem {
             return false;
         }
 
+        /*
         // Prevent players from placing blocks inside their bounding boxes
         if (!block.isPenetrable()) {
             Physics physics = CoreRegistry.get(Physics.class);
@@ -135,6 +131,7 @@ public class BoatPlacingSystem extends BaseComponentSystem {
              * start and end without noise. So if the user walked as close to a block as possible it is only natural
              * to let it place a block exactly above it even if that technically would mean a collision start.
              */
+        /*
             min.x += KinematicCharacterMover.HORIZONTAL_PENETRATION;
             max.x -= KinematicCharacterMover.HORIZONTAL_PENETRATION;
             min.y += KinematicCharacterMover.VERTICAL_PENETRATION;
@@ -145,13 +142,14 @@ public class BoatPlacingSystem extends BaseComponentSystem {
             /*
              * Calculations aren't exact and in the corner cases it is better to let the user place the block.
              */
+        /*
             float additionalAllowedPenetration = 0.04f; // ignore small rounding mistakes
             min.add(ADDITIONAL_ALLOWED_PENETRATION, ADDITIONAL_ALLOWED_PENETRATION, ADDITIONAL_ALLOWED_PENETRATION);
             max.sub(ADDITIONAL_ALLOWED_PENETRATION, ADDITIONAL_ALLOWED_PENETRATION, ADDITIONAL_ALLOWED_PENETRATION);
 
             AABB newBounds = AABB.createMinMax(min, max);
             return physics.scanArea(newBounds, StandardCollisionGroup.DEFAULT, StandardCollisionGroup.CHARACTER).isEmpty();
-        }
+        }*/
         return true;
     }
 }

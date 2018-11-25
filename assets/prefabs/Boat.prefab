@@ -9,11 +9,12 @@
          "sourceMesh" : "Nautical:Boat"
     },
     "RigidBody": {
+        "kinematic" : true,
         "collisionGroup" : "engine:world",
-        "collidesWith" : ["engine:world","engine:debris","engine:sensor","engine:character", "engine:liquid"]
+        "collidesWith" : ["engine:all"]
     },
     "AABBCollision": {
-        "extents": [.5, 0.125, 0.25]
+        "extents": [.75, 0.075, 0.5]
     },
     "InteractionTarget": {},
     "Boat": {}

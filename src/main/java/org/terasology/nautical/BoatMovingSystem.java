@@ -44,6 +44,7 @@ public class BoatMovingSystem extends BaseComponentSystem {
     BlockManager blockManager;
     @In
     EntityManager entityManager;
+
     private Block boat;
     private Block water;
     private boolean isActive = false;
@@ -63,7 +64,6 @@ public class BoatMovingSystem extends BaseComponentSystem {
             Vector3f previousBlockPos = new Vector3f(Math.round(prevPos.x * 2) / 2 + .5f, Math.round(prevPos.y * 2) / 2 - .5f, Math.round(prevPos.z*2)/2 + .5f);
             Vector3f currentBlockPos = new Vector3f(Math.round(pos.x*2)/2 + .5f, Math.round(pos.y*2)/2 -.5f, Math.round(pos.z*2)/2+ .5f);
             Vector3f waterCheck = new Vector3f(currentBlockPos.x, currentBlockPos.y - 1, currentBlockPos.z);
-            logger.info(worldProvider.getBlock(currentBlockPos).getURI().toString());
             if (worldProvider.getBlock(waterCheck).equals(water) && worldProvider.getBlock(currentBlockPos).equals(blockManager.getBlock("engine:air"))) {
                 logger.info("equals");
                 Prefab boat = entityManager.getPrefabManager().getPrefab("Boat");
