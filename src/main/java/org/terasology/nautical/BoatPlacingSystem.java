@@ -58,6 +58,9 @@ public class BoatPlacingSystem extends BaseComponentSystem {
     private BlockEntityRegistry blockEntityRegistry;
 
     @In
+    private BoatMovingSystem boatMovingSystem;
+
+    @In
     private EntityManager entityManager;
 
     public void initialise() {
@@ -79,19 +82,21 @@ public class BoatPlacingSystem extends BaseComponentSystem {
         Side secondaryDirection = ChunkMath.getSecondaryPlacementDirection(event.getDirection(), event.getHitNormal());
 
         BlockComponent blockComponent = event.getTarget().getComponent(BlockComponent.class);
-        Vector3i targetBlock = new Vector3i(blockComponent.position);
-        Vector3i placementPos = new Vector3i(targetBlock);
-        placementPos.add(surfaceSide.getVector3i());
+        if (blockComponent != null) {
+            Vector3i targetBlock = new Vector3i(blockComponent.position);
+            Vector3i placementPos = new Vector3i(targetBlock);
+            placementPos.add(surfaceSide.getVector3i());
 
-        Block block = type.getBlockForPlacement(placementPos, surfaceSide, secondaryDirection);
+            Block block = type.getBlockForPlacement(placementPos, surfaceSide, secondaryDirection);
 
-        logger.info("block id: "+block.getDisplayName());
-        if (block.getDisplayName().equals("Boat")) {
-            if (canPlaceBlock(block, targetBlock, placementPos)) {
-                logger.info("can place");
-                if (networkSystem.getMode().isAuthority()) {
-                    logger.info("placing boat");
-                    EntityRef boat = entityManager.create("Boat", new Vector3f(placementPos.x, placementPos.y, placementPos.z));
+            logger.info("block id: " + block.getDisplayName());
+            if (block.getDisplayName().equals("Boat")) {
+                if (canPlaceBlock(block, targetBlock, placementPos)) {
+                    logger.info("can place");
+                    if (networkSystem.getMode().isAuthority()) {
+                        logger.info("placing boat");
+                        boatMovingSystem.boat(entityManager.create("Boat", new Vector3f(placementPos.x, placementPos.y, placementPos.z)));
+                    }
                 }
             }
         }

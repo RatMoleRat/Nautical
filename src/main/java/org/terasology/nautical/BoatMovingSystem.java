@@ -24,17 +24,25 @@ import org.terasology.entitySystem.event.EventPriority;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.prefab.Prefab;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
+import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.math.geom.Quat4f;
+import org.terasology.math.geom.Vector2f;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.physics.events.MovedEvent;
 import org.terasology.registry.In;
+import org.terasology.registry.Share;
+import org.terasology.rendering.logic.MeshComponent;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockManager;
 
-@RegisterSystem
+import java.util.Iterator;
+
+@RegisterSystem(value = RegisterMode.ALWAYS)
+@Share(BoatMovingSystem.class)
 public class BoatMovingSystem extends BaseComponentSystem {
 
     private static  final Logger logger = LoggerFactory.getLogger(BoatMovingSystem.class);
@@ -45,12 +53,18 @@ public class BoatMovingSystem extends BaseComponentSystem {
     @In
     EntityManager entityManager;
 
-    private Block boat;
     private Block water;
+   // private Vector3f prevPos = Vector3f.zero();
     private boolean isActive = false;
 
+    private EntityRef boat;
+    private LocationComponent boatLocationComp;
+    private MeshComponent boatMeshComp;
+
+    private float boatLocY;
+    private float boatHeight;
+
     public void postBegin() {
-        boat = blockManager.getBlock("Nautical:Boat");
         water = blockManager.getBlock("Core:Water");
     }
     @ReceiveEvent
@@ -59,16 +73,17 @@ public class BoatMovingSystem extends BaseComponentSystem {
         if (isActive) {
             //TODO: rotate boat based on player rotation
             Vector3f pos = event.getPosition();
-            Vector3f prevPos = new Vector3f(event.getPosition());
-            prevPos.sub(event.getDelta());
-            Vector3f previousBlockPos = new Vector3f(Math.round(prevPos.x * 2) / 2 + .5f, Math.round(prevPos.y * 2) / 2 - .5f, Math.round(prevPos.z*2)/2 + .5f);
-            Vector3f currentBlockPos = new Vector3f(Math.round(pos.x*2)/2 + .5f, Math.round(pos.y*2)/2 -.5f, Math.round(pos.z*2)/2+ .5f);
+            LocationComponent charLoc = character.getComponent(LocationComponent.class);
+            Vector3f charPos = charLoc.getWorldPosition();
+            Vector3f currentBlockPos = new Vector3f(pos.x  + .5f, pos.y + .5f, pos.z + .5f);
             Vector3f waterCheck = new Vector3f(currentBlockPos.x, currentBlockPos.y - 1, currentBlockPos.z);
             if (worldProvider.getBlock(waterCheck).equals(water) && worldProvider.getBlock(currentBlockPos).equals(blockManager.getBlock("engine:air"))) {
-                logger.info("equals");
-                Prefab boat = entityManager.getPrefabManager().getPrefab("Boat");
+
                 if (boat != null) {
-                    boat.getComponent(LocationComponent.class).setWorldPosition(pos);
+                    logger.info("charPos: "+charPos+ "   boatPos: "+boatLocationComp.getWorldPosition());
+                    boatMeshComp.mesh.getAABB().transform(new Quat4f(0, 0, 0, 0), boatLocationComp.getWorldPosition().sub(new Vector3f(charPos.x, 0, charPos.z)), 1);
+                    boat.getComponent(LocationComponent.class).setWorldPosition(new Vector3f(charPos.x, boatLocY + boatHeight / 2, charPos.z));
+                    //todo: TEST this, figure out why boat isn't moving
                 }
             }
         }
@@ -76,14 +91,22 @@ public class BoatMovingSystem extends BaseComponentSystem {
 
     @ReceiveEvent(priority = EventPriority.PRIORITY_CRITICAL)
     public void onBlockActivated(ActivateEvent event, EntityRef character) {
-        logger.info("event triggered");
+        //logger.info("event triggered");
         Vector3f loc = event.getTargetLocation();
-            logger.info("not null");
+           // logger.info("not null");
             isActive = !isActive;
             if (isActive) {
                 logger.info("active");
                 //TODO: teleport player to boat
                 //character.getComponent(LocationComponent.class).setWorldPosition(new Vector3f(loc.x, loc.y+1, loc.z));
             }
+    }
+
+    public void boat(EntityRef ref) {
+        boat = ref;
+        boatLocationComp = boat.getComponent(LocationComponent.class);
+        boatMeshComp = boat.getComponent(MeshComponent.class);
+        boatLocY = boatLocationComp.getWorldPosition().y;
+        boatHeight = boatMeshComp.mesh.getAABB().maxY() - boatMeshComp.mesh.getAABB().minY() + .1f;
     }
 }
