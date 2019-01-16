@@ -71,19 +71,18 @@ public class BoatMovingSystem extends BaseComponentSystem {
     public void onCharacterMoved(MovedEvent event, EntityRef character) {
 
         if (isActive) {
-            //TODO: rotate boat based on player rotation
             Vector3f pos = event.getPosition();
             LocationComponent charLoc = character.getComponent(LocationComponent.class);
             Vector3f charPos = charLoc.getWorldPosition();
-            Vector3f currentBlockPos = new Vector3f(pos.x  + .5f, pos.y + .5f, pos.z + .5f);
+            Vector3f currentBlockPos = new Vector3f(pos.x  + .5f, pos.y - .5f, pos.z + .5f);
             Vector3f waterCheck = new Vector3f(currentBlockPos.x, currentBlockPos.y - 1, currentBlockPos.z);
             if (worldProvider.getBlock(waterCheck).equals(water) && worldProvider.getBlock(currentBlockPos).equals(blockManager.getBlock("engine:air"))) {
 
                 if (boat != null) {
                     logger.info("charPos: "+charPos+ "   boatPos: "+boatLocationComp.getWorldPosition());
+                    boat.getComponent(LocationComponent.class).setWorldRotation(charLoc.getWorldRotation());
                     boatMeshComp.mesh.getAABB().transform(new Quat4f(0, 0, 0, 0), boatLocationComp.getWorldPosition().sub(new Vector3f(charPos.x, 0, charPos.z)), 1);
                     boat.getComponent(LocationComponent.class).setWorldPosition(new Vector3f(charPos.x, boatLocY + boatHeight / 2, charPos.z));
-                    //todo: TEST this, figure out why boat isn't moving
                 }
             }
         }

@@ -11,7 +11,7 @@
     "RigidBody": {
         "kinematic" : true,
         "collisionGroup" : "engine:world",
-        "collidesWith" : ["engine:all"]
+        "collidesWith" : ["engine:character"]
     },
     "AABBCollision": {
         "extents": [.75, 0.075, 0.5]
